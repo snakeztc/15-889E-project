@@ -1,3 +1,5 @@
+In all these scripts, in clude the functions folder
+
 qlearning.m will run the normal q-learning algorithm
 
 hsmqLearning.m will call the HSMQ.m algoithm in the paper (http://link.springer.com/chapter/10.1007/3-540-44914-0_2)
