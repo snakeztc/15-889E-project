@@ -34,6 +34,7 @@ tempDecay = 0.98;
 trainR = zeros(maxIter, 1);
 evaInterval = 100;
 
+%% The online HSMQ learning algorihtm
 for i = 1:maxIter
     s = initStateGenerate();
     % decay T
@@ -50,4 +51,5 @@ for i = 1:maxIter
     end
 end
 
+%% Plot the performance curve
 plot(evalStep, evalAvgR);

@@ -7,7 +7,14 @@
 global qTable
 global aTable
 
-qq = importdata('optimalHSMQselfQTable.mat');
+%% Clean up memory
+clear;
+
+%% Load data
+qq = importdata('./data/optimalHSMQselfQTable.mat');
+expTable = importdata('./data/hsmqRanExpTable.mat');
+
+%% Intialize the Q table to be new
 Qmin = 0.123;
 qTable = cell(11, 1);
 qTable{1} = Qmin+zeros(500, 2); %root
@@ -26,37 +33,11 @@ aTable(3, 2) = 7; %put
 aTable(6, 1:4) = 8:11; %navi_get
 aTable(7, 1:4) = 8:11; %navi_put
 
-
-%% Intialize subroutine nodes
-Q2 = qTable{2};
-for i = 1:500
-    if(taxiMaxTermnial(state2flat(i-1), 6))
-        Q2(i, 2) = -inf;
-    end
-end
-qTable{2} = Q2;
-
-Q3 = qTable{3};
-for i = 1:500
-    if(taxiMaxTermnial(state2flat(i-1), 7))
-        Q3(i, 2) = -inf;
-    end
-end
-qTable{3} = Q3;
-
-Q1 = qTable{1};
-for i = 1:500
-    if(taxiMaxTermnial(state2flat(i-1), 2))
-        Q1(i, 1) = -inf;
-    end
-    if(taxiMaxTermnial(state2flat(i-1), 3))
-        Q1(i, 2) = -inf;
-    end
-end
-qTable{1} = Q1;
-
+%% First evaluate the initial policy by 100 trials to see initial perforamnce
 evalHSMQ(100, true);
+
 %% Learn subroutinue
+% we train layer by layer from the bottom to top
 batchHsmq(6, expTable);
 batchHsmq(7, expTable);
 batchHsmq(2, expTable);
@@ -65,15 +46,12 @@ batchHsmq(1, expTable);
 
 %% Compare qTables
 Q2 = qTable{2};
-Q2(Q2 == -inf) = Qmin;
 disp(['q2 norm difference ' num2str(norm(max(Q2, [], 2) - max(qq{2}, [], 2)))]);
 
 Q3 = qTable{3};
-Q3(Q3 == -inf) = Qmin;
 disp(['q3 norm difference ' num2str(norm(max(Q3, [], 2) - max(qq{3}, [], 2)))]);
 
 Q1 = qTable{1};
-Q1(Q1 == -inf) = Qmin;
 disp(['q1 norm difference ' num2str(norm(max(Q1, [], 2) - max(qq{1}, [], 2)))]);
 
 
