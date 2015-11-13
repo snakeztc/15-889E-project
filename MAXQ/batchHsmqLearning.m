@@ -4,11 +4,11 @@
 % cTable: numNode * 1 cell
 % inside: numS * numA matrix
 % aTable contains the avaliable action for node 1 2 3 6 7
-global qTable
-global aTable
-
 %% Clean up memory
 clear;
+
+global qTable
+global aTable
 
 %% Load data
 qq = importdata('./data/optimalHSMQselfQTable.mat');
@@ -34,16 +34,23 @@ aTable(6, 1:4) = 8:11; %navi_get
 aTable(7, 1:4) = 8:11; %navi_put
 
 %% First evaluate the initial policy by 100 trials to see initial perforamnce
-evalHSMQ(100, true);
+evalHSMQ(1, true);
 
 %% Learn subroutinue
 % we train layer by layer from the bottom to top
+batchFlatHsmq(6, expTable);
+batchFlatHsmq(7, expTable);
+batchFlatHsmq(2, expTable);
+batchFlatHsmq(3, expTable);
+batchFlatHsmq(1, expTable);
+%}
+%{
 batchHsmq(6, expTable);
 batchHsmq(7, expTable);
 batchHsmq(2, expTable);
 batchHsmq(3, expTable);
 batchHsmq(1, expTable);
-
+%}
 %% Compare qTables
 Q2 = qTable{2};
 disp(['q2 norm difference ' num2str(norm(max(Q2, [], 2) - max(qq{2}, [], 2)))]);
