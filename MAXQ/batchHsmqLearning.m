@@ -12,7 +12,7 @@ global aTable
 
 %% Load data
 qq = importdata('./data/optimalHSMQselfQTable.mat');
-expTable = importdata('./data/hsmqRanExpTable.mat');
+expTable = importdata('./data/flatRanExpTable.mat');
 
 %% Intialize the Q table to be new
 Qmin = 0.123;
@@ -38,11 +38,20 @@ evalHSMQ(1, true);
 
 %% Learn subroutinue
 % we train layer by layer from the bottom to top
+%{
+batchMaxFlatHsmq(6, expTable);
+batchMaxFlatHsmq(7, expTable);
+batchMaxFlatHsmq(2, expTable);
+batchMaxFlatHsmq(3, expTable);
+batchMaxFlatHsmq(1, expTable);
+%}
+
 batchFlatHsmq(6, expTable);
 batchFlatHsmq(7, expTable);
 batchFlatHsmq(2, expTable);
 batchFlatHsmq(3, expTable);
 batchFlatHsmq(1, expTable);
+%}
 %}
 %{
 batchHsmq(6, expTable);

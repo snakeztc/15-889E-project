@@ -3,19 +3,18 @@
 % action 1 up 2 down 3 left 4 right 5 pick up 6 drop
 %clear;
 qtable = zeros(500, 6) + 0.123;
-maxIter = 5000;
+maxIter = 500;
 learningRate = 0.3;
 initTemp = 50;
-tempDecay = 0.97;
+tempDecay = 1;
 gamma = 0.95;
 stepCnt = 0;
 evalAvgR = [];
 evalStep = [];
 % collect samples and try it for fitted value iter
-states = [];
-nextStates = [];
-actions = [];
-rewards = [];
+% we use the format of following:
+% s a r s'
+expTable = [];
 col = 1;
 
 for i = 1:maxIter
@@ -37,10 +36,7 @@ for i = 1:maxIter
         qtable(state2flat(s)+1, a) = prevQsa + learningRate * (r + gamma * nextMaxQsa - prevQsa);
         % save the samples
         if col == 1
-            states = [states; s];
-            nextStates = [nextStates; sp];
-            actions = [actions; a];
-            rewards = [rewards; r];
+            expTable = [expTable; [s a r sp]];
         end
         % check condition
         s = sp;
@@ -59,10 +55,7 @@ for i = 1:maxIter
     end
 end
 plot(evalStep, evalAvgR);
-%save('states.mat', 'states');
-%save('nextStates.mat', 'nextStates');
-%save('actions.mat', 'actions');
-%save('rewards.mat', 'rewards');
+save('./data/flatRanExpTable.mat', 'expTable');
 
 
 

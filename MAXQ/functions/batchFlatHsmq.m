@@ -12,10 +12,11 @@ global aTable
 % aTable contains the avaliable action for node 1 2 3 6 7
 % disp(['in node ' num2str(node) ' with state ' num2str(sIndex)]);
 
-maxIter = 20;
+maxIter = 50;
 gamma = 0.96;
 
-E = expTable{node};
+%E = expTable{node};
+E = expTable;
 Q = qTable{node};
 %% The format of E is: s a(maxq encoding) nr sp a_parent(maxq encoding) 
 % we will ignore parentA for the flatHsmq case
@@ -24,6 +25,8 @@ primActions = E(:, 5);
 rewards = E(:, 6);
 nextStates = E(:, 7:10);
 %parentA = E(:, 11);
+
+primActions = encodingConvert(primActions, 'flat');
 
 %% convert states to index
 statesIdx = state2flat(state)+1;
@@ -43,7 +46,7 @@ for i = 1:numSample
     for j = 1:numAction
         % create valid mask
         curPrimA = primActions(i);
-        bestA = bestActionHSMQ(curATable(j), statesIdx(i));
+        bestA = bestActionHSMQ(curATable(j), statesIdx(i), 1);
         if (bestA ~= curPrimA)
             nonNanMask(i, j) = 0;
         end
