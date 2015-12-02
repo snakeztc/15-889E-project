@@ -14,6 +14,7 @@ global aTable
 qq = importdata('./data/optimalHSMQselfQTable.mat');
 expTable = importdata('./data/flatRanExpTable.mat');
 
+expTable = datasample(expTable, 50000);
 %% Intialize the Q table to be new
 Qmin = 0.123;
 qTable = cell(11, 1);
@@ -33,19 +34,8 @@ aTable(3, 2) = 7; %put
 aTable(6, 1:4) = 8:11; %navi_get
 aTable(7, 1:4) = 8:11; %navi_put
 
-%% First evaluate the initial policy by 100 trials to see initial perforamnce
-evalHSMQ(1, true);
-
 %% Learn subroutinue
 % we train layer by layer from the bottom to top
-%{
-batchMaxFlatHsmq(6, expTable);
-batchMaxFlatHsmq(7, expTable);
-batchMaxFlatHsmq(2, expTable);
-batchMaxFlatHsmq(3, expTable);
-batchMaxFlatHsmq(1, expTable);
-%}
-
 batchFlatHsmq(6, expTable);
 batchFlatHsmq(7, expTable);
 batchFlatHsmq(2, expTable);
@@ -60,7 +50,10 @@ batchHsmq(2, expTable);
 batchHsmq(3, expTable);
 batchHsmq(1, expTable);
 %}
+
+evalHSMQ(100, true);
 %% Compare qTables
+%{
 Q2 = qTable{2};
 disp(['q2 norm difference ' num2str(norm(max(Q2, [], 2) - max(qq{2}, [], 2)))]);
 
@@ -69,7 +62,7 @@ disp(['q3 norm difference ' num2str(norm(max(Q3, [], 2) - max(qq{3}, [], 2)))]);
 
 Q1 = qTable{1};
 disp(['q1 norm difference ' num2str(norm(max(Q1, [], 2) - max(qq{1}, [], 2)))]);
-
+%}
 
 
 

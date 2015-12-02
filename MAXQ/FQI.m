@@ -1,7 +1,11 @@
-%states = importdata('./data/states.mat');
-%nextStates = importdata('./data/nextStates.mat');
-%actions = importdata('./data/actions.mat');
-%rewards = importdata('./data/rewards.mat');
+clear;
+expTable = importdata('./data/flatRanExpTable.mat');
+expTable = datasample(expTable, 30000);
+states = expTable(:, 1:4);
+actions = expTable(:, 5);
+rewards = expTable(:, 6);
+nextStates = expTable(:, 7:10);
+
 minQ = -10;
 fviQtable = zeros(500, 6) + minQ;
 maxIter = 50;
@@ -11,33 +15,18 @@ FVIEvalAvgR = zeros(maxIter, 1);
 sIndex = state2flat(states) + 1;
 nsIndex = state2flat(nextStates) + 1;
 
-% sample a subset of data
-sampleSize = 14000;
-
-[r_rewards, idx] = datasample(rewards, sampleSize);
-r_sIndex = sIndex(idx, :);
-r_nsIndex = nsIndex(idx, :);
-r_actions = actions(idx, :);
-%}
-%{
-r_rewards = rewards(1:sampleSize);
-r_sIndex = sIndex(1:sampleSize);
-r_nsIndex = nsIndex(1:sampleSize);
-r_actions = actions(1:sampleSize);
-%}
-
 for i = 1:maxIter
-    nextMaxQ = max(fviQtable(r_nsIndex, :), [], 2);
-    y = r_rewards + gamma * nextMaxQ;
+    nextMaxQ = max(fviQtable(nsIndex, :), [], 2);
+    y = rewards + gamma * nextMaxQ;
     % update table
     originalQ = zeros(length(y), 1);
     for j = 1:length(y)
-        originalQ(j) = fviQtable(r_sIndex(j), r_actions(j));
+        originalQ(j) = fviQtable(sIndex(j), actions(j));
     end
     for j = 1:500
         for k = 1:6
-            stateMask = r_sIndex==j;
-            actionMask = r_actions==k;
+            stateMask = sIndex==j;
+            actionMask = actions==k;
             fviQtable(j,k) = mean(y(stateMask & actionMask));
         end
     end
@@ -45,7 +34,8 @@ for i = 1:maxIter
     % compute bellman residual
     resd = mean(abs(y - originalQ));
     disp(['iter ' num2str(i) ' bellman residual is ' num2str(resd)]);
-    FVIEvalAvgR(i) = qEval(fviQtable, 100);
+    %FVIEvalAvgR(i) = qEval(fviQtable, 100);
 end
-plot(FVIEvalAvgR);
-disp(max(FVIEvalAvgR));
+qEval(fviQtable, 100);
+%plot(FVIEvalAvgR);
+%disp(max(FVIEvalAvgR));

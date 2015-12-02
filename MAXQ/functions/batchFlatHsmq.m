@@ -11,9 +11,9 @@ global aTable
 % inside: numS * numA matrix
 % aTable contains the avaliable action for node 1 2 3 6 7
 % disp(['in node ' num2str(node) ' with state ' num2str(sIndex)]);
-
 maxIter = 50;
-gamma = 0.96;
+gamma = 0.95;
+verbose = 0;
 
 %E = expTable{node};
 E = expTable;
@@ -38,7 +38,9 @@ numSample = size(state, 1);
 curATable = aTable(node,1:numAction); % the node name for action
 
 %% Check if the node contains any subtask action as its direct children
-figure(node);
+if (verbose == 1)
+    figure(node);
+end
 
 nonNanMask = ones(numSample, numAction);
 %% Filter the experince table and locate relevant experience tuples
@@ -46,7 +48,7 @@ for i = 1:numSample
     for j = 1:numAction
         % create valid mask
         curPrimA = primActions(i);
-        bestA = bestActionHSMQ(curATable(j), statesIdx(i), 1);
+        bestA = bestActionHSMQ(curATable(j), statesIdx(i));
         if (bestA ~= curPrimA)
             nonNanMask(i, j) = 0;
         end
@@ -54,7 +56,9 @@ for i = 1:numSample
 end
 nonNanMask = logical(nonNanMask);
 % calculate what percentage data is useful in learning this node's policy
-disp(['node ' num2str(node)  ' relevant ratio ' num2str(sum(sum(nonNanMask, 2)>0)/numSample)]);
+if (verbose)
+    disp(['node ' num2str(node)  ' relevant ratio ' num2str(sum(sum(nonNanMask, 2)>0)/numSample)]);
+end
 
 %% Begin value iteration
 for i = 1:maxIter
@@ -102,23 +106,30 @@ for i = 1:maxIter
                 % This problem may goes away in the second (challenge)
                 % setting because flat random policy will search the space
                 % more evenly.
-                Q(j, k) = -10;
+                %Q(j, k) = -10;
             end
         end
     end
     qTable{node} = Q;
-    plot(Q);
-    drawnow
+    if (verbose == 1)
+        plot(Q);
+        drawnow
+    end
     
     %% compute bellman residual
     resd = mean(abs(y(nonNanMask) - originalQ(nonNanMask)));
-    disp(['Iter '  num2str(i) ' node ' num2str(node) ' bellman residual is ' num2str(resd)]);
-    if (resd < 0.01)
+    if (verbose)
+        disp(['Iter '  num2str(i) ' node ' num2str(node) ' bellman residual is ' num2str(resd)]);
+    end
+    if (resd < 0.001)
         break;
     end
+    %}
 end
 
-%% evaluate the entire policy by 100 trials in the simulator
-evalHSMQ(100, true);
+%% evaluate the entire policy by 100 trials in the simulato
+if (verbose == 1)
+    evalHSMQ(100, true);
+end
 end
 

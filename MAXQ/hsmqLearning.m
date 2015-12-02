@@ -4,16 +4,18 @@
 % cTable: numNode * 1 cell
 % inside: numS * numA matrix
 % aTable contains the avaliable action for node 1 2 3 6 7
+clear;
+rng(12);
 global qTable
 global aTable
 global totalStep;
 
 qTable = cell(11, 1);
-qTable{1} = 0.123+zeros(500, 2); %root
-qTable{2} = 0.123+zeros(500, 2); %get
-qTable{3} = 0.123+zeros(500, 2); %put
-qTable{6} = 0.123+zeros(500, 4); %put
-qTable{7} = 0.123+zeros(500, 4); %put
+qTable{1} = zeros(500, 2); %root
+qTable{2} = zeros(500, 2); %get
+qTable{3} = zeros(500, 2); %put
+qTable{6} = zeros(500, 4); %put
+qTable{7} = zeros(500, 4); %put
 %}
 aTable = zeros(11, 6);
 aTable(1, 1) = 2; %root
@@ -25,12 +27,12 @@ aTable(3, 2) = 7; %put
 aTable(6, 1:4) = 8:11; %navi_get
 aTable(7, 1:4) = 8:11; %navi_put
 %}
-maxIter = 6000;
+maxIter = 5;
 evalStep = [];
 evalAvgR = [];
 stepCnt = 0;
-initTemp = 100;
-tempDecay = 0.98;
+initTemp = 50;
+tempDecay = 0.95;
 trainR = zeros(maxIter, 1);
 evaInterval = 100;
 
@@ -44,7 +46,7 @@ for i = 1:maxIter
     %evalAvgR(i) = R;
     stepCnt = stepCnt + N;
     if (mod(i, evaInterval) == 0)
-        %avg = evalHSMQ(100);
+        avg = evalHSMQ(10, true);
         evalAvgR = [evalAvgR; mean(trainR(i-evaInterval+1:i))];
         evalStep = [evalStep; stepCnt];
         disp(['iter ' num2str(i) ' having ' num2str(evalAvgR(end)) ' with ' num2str(stepCnt)]);

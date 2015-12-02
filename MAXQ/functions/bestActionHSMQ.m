@@ -1,4 +1,4 @@
-function [action, q] = bestActionHSMQ(node, sIdx, qq)
+function [action] = bestActionHSMQ(node, sIdx)
 global qTable
 global aTable
 % this function is designed just work for taxi
@@ -12,13 +12,12 @@ global aTable
 % aTable contains the avaliable action for node 1 2 3 6 7
 if (node > 7 || node == 4 || node == 5)
     action = node;
-    q = qq;
 else
     Q = qTable{node};
     tempQ = Q(sIdx, :);
-    [qqq, maxIdx] = max(tempQ);
+    [~, maxIdx] = max(tempQ);
     a = aTable(node, maxIdx);
-    [action, q] = bestActionHSMQ(a, sIdx, qqq); 
+    action = bestActionHSMQ(a, sIdx); 
 end
 
 

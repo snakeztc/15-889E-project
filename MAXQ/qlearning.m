@@ -2,12 +2,13 @@
 % src = 5 means on taxi
 % action 1 up 2 down 3 left 4 right 5 pick up 6 drop
 %clear;
+clear;
 qtable = zeros(500, 6) + 0.123;
-maxIter = 500;
-learningRate = 0.3;
+maxIter = 5000;
+learningRate = 0.2;
 initTemp = 50;
-tempDecay = 1;
-gamma = 0.95;
+tempDecay = 0.95;
+gamma = 0.98;
 stepCnt = 0;
 evalAvgR = [];
 evalStep = [];
@@ -15,13 +16,10 @@ evalStep = [];
 % we use the format of following:
 % s a r s'
 expTable = [];
-col = 1;
+col = 0;
 
 for i = 1:maxIter
-    pass = randi(4);
-    dest = randi(4);
-    car = randi(5, 2, 1)';
-    s = [dest, pass, car];
+    s = initStateGenerate();
     localCnt = 0;
     localR = 0;
     while 1
@@ -43,19 +41,19 @@ for i = 1:maxIter
         stepCnt = stepCnt + 1;
         localCnt = localCnt + 1;
         localR = localR + r;
+        if (mod(stepCnt, 5000) == 0)
+            avgR = qEval(qtable, 100);
+            evalAvgR = [evalAvgR; avgR];
+            evalStep = [evalStep; stepCnt];
+            disp(['iter ' num2str(i) ' having ' num2str(avgR) ' with ' num2str(stepCnt)]);
+        end
         if terminal == 1
             break;
         end
     end
-    if (mod(i, 100) == 0)
-        avgR = qEval(qtable, 100);
-        evalAvgR = [evalAvgR; avgR];
-        evalStep = [evalStep; stepCnt];
-        disp(['iter ' num2str(i) ' having ' num2str(avgR) ' with ' num2str(stepCnt)]);
-    end
 end
 plot(evalStep, evalAvgR);
-save('./data/flatRanExpTable.mat', 'expTable');
+%save('./data/flatRanExpTable.mat', 'expTable');
 
 
 
