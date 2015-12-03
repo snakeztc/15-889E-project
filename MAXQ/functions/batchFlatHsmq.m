@@ -48,7 +48,7 @@ for i = 1:numSample
     for j = 1:numAction
         % create valid mask
         curPrimA = primActions(i);
-        bestA = bestActionHSMQ(curATable(j), statesIdx(i));
+        bestA = f(curATable(j), statesIdx(i));
         if (bestA ~= curPrimA)
             nonNanMask(i, j) = 0;
         end
