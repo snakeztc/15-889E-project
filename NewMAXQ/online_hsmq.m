@@ -6,22 +6,8 @@
 clear;
 rng(12);
 %% Representation
-[q_tables, a_tables] = init_tree(6, 5, 500, [4 4 2 2 2]);
-a_tables{7} = [1 2 3 4]; %navi_get
-a_tables{8} = [1 2 3 4]; %navi_put
-a_tables{9} = [5 7]; %get
-a_tables{10} = [6 8];  %put
-a_tables{11} = [9 10]; %root
-
-init_temp = zeros(11, 1);
-init_temp(7) = 12.5;
-init_temp(8) = 12.5;
-init_temp(9) = 25;
-init_temp(10) = 25;
-init_temp(11) = 50;
-
-terminal_func = @is_terminal_tree1;
-
+[q_tables, a_tables, init_temp] = init_tree2();
+terminal_func = @is_terminal_tree2;
 
 %% Hyper parameters
 max_iter = 5000;
@@ -44,7 +30,7 @@ col = false;
 %% Experiemnt running
 for i = 1:max_iter
     s = gen_init_state();
-    exe_stack = [11 0 0 s_index_vector(s)];
+    exe_stack = [size(q_tables, 1) 0 0 s_index_vector(s)];
     local_cnt = 0;
     local_r = 0;
     real_temp = init_temp * temp_decay ^ i;

@@ -34,7 +34,8 @@ function [sp, a, r, terminal, q_tables, exe_stack] = hsmq(s, q_tables, a_tables,
     % remove completed task 
     last_pop = -1;
     for i = size(exe_stack, 1):-1:1
-        if (is_terminal(terminal_func, sp, exe_stack(i, 1)) || is_primitive(exe_stack(i, 1), a_tables)...
+        if (is_terminal(terminal_func, sp, exe_stack(i, 1))...
+                || is_primitive(exe_stack(i, 1), a_tables)...
                 || cur_step_cnt >= max_epi_step) 
             % learn if neccessary
             if (~exe && i > 1)

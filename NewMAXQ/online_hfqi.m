@@ -4,14 +4,8 @@
 %clear;
 clear;
 rng(12);
-[q_tables, a_tables] = init_tree(6, 5, 500, [4 4 2 2 2]);
-a_tables{7} = [1 2 3 4];
-a_tables{8} = [1 2 3 4];
-a_tables{9} = [5 7];
-a_tables{10} = [6 8];
-a_tables{11} = [9 10];
-
-terminal_func = @is_terminal_tree1;
+[q_tables, a_tables] = init_tree2();
+terminal_func = @is_terminal_tree2;
 
 max_iter = 100;
 max_epi_step = 1000;

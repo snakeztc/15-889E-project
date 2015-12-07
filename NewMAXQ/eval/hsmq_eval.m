@@ -3,9 +3,10 @@ function [avg_reward, rewards] = hsmq_eval(q_tables, a_tables, terminal_func, nu
         gamma = 1;
     end
     rewards = zeros(num_trail, 1);
+    root_index = size(q_tables, 1);
     for i = 1:num_trail
         s = gen_init_state();
-        exe_stack = [11 0 0 s_index_vector(s)];
+        exe_stack = [root_index 0 0 s_index_vector(s)];
         local_r = 0;
         local_cnt = 0;
         while ~isempty(exe_stack)
