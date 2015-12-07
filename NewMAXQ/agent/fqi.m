@@ -1,4 +1,6 @@
-function [q_table, perforamnce] = fqi(exp_table, q_table, sample_size, max_iter, gamma, stop_threshod, verbose)
+function [q_tables, perforamnce] = fqi(exp_table, q_tables, a_tables, sample_size, max_iter, gamma, stop_threshod, verbose)
+
+q_table = q_tables{end};
 perforamnce = 0;
 exp_table = datasample(exp_table, sample_size, 1);
 states = exp_table(:, 1:4);
@@ -38,10 +40,10 @@ for i = 1:max_iter
     if (resd < stop_threshod)
         break;
     end
-    
 end
+q_tables{end} = q_table;
 if (verbose)
-    perforamnce = q_eval(q_table, 100, 1000, true, gamma);
+    perforamnce = q_eval(q_tables, a_tables, 100, 1000, true, gamma);
 end
 end
 

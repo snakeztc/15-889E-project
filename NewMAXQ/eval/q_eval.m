@@ -1,4 +1,4 @@
-function [avg_reward, rewards] = q_eval(q_table, num_trail, max_epi_step, discount, gamma)
+function [avg_reward, rewards] = q_eval(q_tables, a_tables, num_trail, max_epi_step, discount, gamma)
     if (~discount) 
         gamma = 1;
     end
@@ -8,7 +8,7 @@ function [avg_reward, rewards] = q_eval(q_table, num_trail, max_epi_step, discou
         local_r = 0;
         local_cnt = 0;
         while 1
-            [sp, r, terminal] = q_learning(s, q_table, 0, gamma, 0, true);
+            [sp, r, terminal] = q_learning(s, q_tables, a_tables, 0, gamma, 0, true);
             s = sp;
             local_r = local_r + gamma ^ local_cnt  * r;
             local_cnt = local_cnt + 1;

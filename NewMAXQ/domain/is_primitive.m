@@ -1,10 +1,5 @@
-function [result] = is_primitive(a)
-if iscell(a)
-    disp('wrong');
-    result = -1;
-    return;
-end
-if (a < 7)
+function [result] = is_primitive(a, a_tables)
+if (isempty(a_tables{a}))
     result = true;
 else
     result = false;

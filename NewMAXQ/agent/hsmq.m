@@ -1,15 +1,15 @@
-function [sp, a, r, terminal, q_tables, exe_stack] = hsmq(s, q_tables, a_tables, ...
+function [sp, a, r, terminal, q_tables, exe_stack] = hsmq(s, q_tables, a_tables, terminal_func, ...
     temperature, gamma, learning_rate, exe_stack, exe, cur_step_cnt, max_epi_step)
     
     % while the top of stack is a substak
-    while ~is_primitive(exe_stack(end, 1))
+    while ~is_primitive(exe_stack(end, 1), a_tables)
         top_action = exe_stack(end, 1);
         Q = q_tables{top_action};
         A = a_tables{top_action};
         s_index = s_index_vector(s);
         tempQ = Q(s_index, :);
         for i = 1:size(Q,2)
-            if (is_terminal(s, A(i)))
+            if (is_terminal(terminal_func, s, A(i)))
                 tempQ(i) = -inf;
             end
         end
@@ -34,7 +34,7 @@ function [sp, a, r, terminal, q_tables, exe_stack] = hsmq(s, q_tables, a_tables,
     % remove completed task 
     last_pop = -1;
     for i = size(exe_stack, 1):-1:1
-        if (is_terminal(sp, exe_stack(i, 1)) || is_primitive(exe_stack(i, 1))...
+        if (is_terminal(terminal_func, sp, exe_stack(i, 1)) || is_primitive(exe_stack(i, 1), a_tables)...
                 || cur_step_cnt >= max_epi_step) 
             % learn if neccessary
             if (~exe && i > 1)

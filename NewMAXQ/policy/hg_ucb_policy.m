@@ -3,7 +3,7 @@ function [action, cnt_table] = hg_ucb_policy(node, s, exp_bonous, q_tables, a_ta
 state_index = s_index_vector(s);
 % record visit frequency
 cnt_table(state_index, node) = cnt_table(state_index, node) + 1;
-if is_primitive(node)
+if is_primitive(node, a_tables)
     action = node;
 else
     Q = q_tables{node};

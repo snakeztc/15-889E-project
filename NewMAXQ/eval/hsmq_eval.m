@@ -1,4 +1,4 @@
-function [avg_reward, rewards] = hsmq_eval(q_tables, a_tables, num_trail, max_epi_step, discount, gamma)
+function [avg_reward, rewards] = hsmq_eval(q_tables, a_tables, terminal_func, num_trail, max_epi_step, discount, gamma)
     if (~discount) 
         gamma = 1;
     end
@@ -9,7 +9,7 @@ function [avg_reward, rewards] = hsmq_eval(q_tables, a_tables, num_trail, max_ep
         local_r = 0;
         local_cnt = 0;
         while ~isempty(exe_stack)
-            [sp, ~, r, ~, q_tables, exe_stack] = hsmq(s, q_tables, a_tables, 0, gamma,...
+            [sp, ~, r, ~, q_tables, exe_stack] = hsmq(s, q_tables, a_tables, terminal_func, 0, gamma,...
                 0, exe_stack, true, local_cnt, max_epi_step);
             s = sp;
             local_r = local_r + gamma ^ local_cnt  * r;

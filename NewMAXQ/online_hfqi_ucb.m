@@ -4,22 +4,19 @@
 %clear;
 clear;
 rng(12);
-q_tables = cell(11, 1); % the first 6 will be empty 
-q_tables{7} = zeros(500, 4); %navi_get
-q_tables{8} = zeros(500, 4); %navi_put
-q_tables{9} = zeros(500, 2); %get
-q_tables{10} = zeros(500, 2); %put
-q_tables{11} = zeros(500, 2); %root
-
-a_tables = cell(11, 1);
+[q_tables, a_tables] = init_tree(6, 5, 500, [4 4 2 2 2]);
 a_tables{7} = [1 2 3 4];
 a_tables{8} = [1 2 3 4];
 a_tables{9} = [5 7];
 a_tables{10} = [6 8];
 a_tables{11} = [9 10];
 
+% Terminal functions
+terminal_func = @is_terminal_tree1;
+% count table
 cnt_table = zeros(500, 11);
 
+%% Hyper parameters
 exp_bonous = 10;
 max_iter = 100;
 max_epi_step = 1000;
@@ -50,12 +47,12 @@ for i = 1:max_iter
         local_r = local_r + r;
         if (mod(step_cnt, batch_size) == 0)
             for j = 7:11
-                q_tables = hfqi(j, exp_table, q_tables, a_tables,50, gamma, stop_threshold, false);
+                q_tables = hfqi(j, exp_table, q_tables, a_tables, terminal_func, 50, gamma, stop_threshold, false);
             end
         end
         % performance evaluation
         if (mod(step_cnt, eval_interval) == 0)
-            avg_reward = hsmq_eval(q_tables, a_tables, 100, 1000, true, gamma);
+            avg_reward = hsmq_eval(q_tables, a_tables, terminal_func, 100, 1000, true, gamma);
             eval_avg_reward = [eval_avg_reward; avg_reward];
             eval_step = [eval_step; step_cnt];
             disp(['iter ' num2str(i) ' having ' num2str(avg_reward) ' with ' num2str(step_cnt)]);
@@ -66,7 +63,7 @@ for i = 1:max_iter
         end
     end
 end
-avg_reward = hsmq_eval(q_tables, a_tables, 100, 1000, true, gamma);
+avg_reward = hsmq_eval(q_tables, a_tables, terminal_func, 100, 1000, true, gamma);
 eval_avg_reward = [eval_avg_reward; avg_reward];
 eval_step = [eval_step; step_cnt];
 plot(eval_step, eval_avg_reward);

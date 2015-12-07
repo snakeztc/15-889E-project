@@ -1,4 +1,4 @@
-function [q_tables, perforamnce] = hfqi(node, exp_table, q_tables, a_tables, ...
+function [q_tables, perforamnce] = hfqi(node, exp_table, q_tables, a_tables, terminal_func, ...
     max_iter, gamma, stop_threshold, verbose)
 
 Q = q_tables{node};
@@ -63,10 +63,10 @@ for i = 1:max_iter
             if (~non_nan_mask(j, k))
                 continue;
             end
-            if is_terminal(next_states(j, :), node)
+            if is_terminal(terminal_func, next_states(j, :), node)
                 y(j, k) = rewards(j);
             else                
-                if is_primitive(A(k)) || is_terminal(next_states(j, :), A(k))
+                if is_primitive(A(k), a_tables) || is_terminal(terminal_func, next_states(j, :), A(k))
                     y(j, k) = rewards(j) + gamma * max(Q(next_state_idx(j), :));
                 else
                     y(j, k) = rewards(j) + gamma * Q(next_state_idx(j), k);
@@ -105,7 +105,7 @@ end
 
 %% evaluate the entire policy by 100 trials in the simulato
 if (verbose == 1)
-    perforamnce = hsmq_eval(q_tables, a_tables, 100, 1000, true, gamma);
+    perforamnce = hsmq_eval(q_tables, a_tables, terminal_func, 100, 1000, true, gamma);
 end
 
 end
