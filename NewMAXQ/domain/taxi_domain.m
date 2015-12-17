@@ -14,6 +14,8 @@ mapSize = 5;
 R = [1 1]; G = [1 5]; Y = [5 1]; B = [5 4];
 locs = [R; G; Y; B];
 terminal = 0;
+move_prob = 0.2;
+change_mind = 0.3;
 
 % check terminal state
 ssrc = s(src);
@@ -30,6 +32,7 @@ end
 % check illegal pick up
 if (a == 5)
     if (ssrc < 5 && sum([sx sy]==locs(ssrc, :)) == 2)
+        % with certain prob, user change mind
         sp = [sdest, 5, sx, sy];
         r = -1;
     else
@@ -48,6 +51,12 @@ if (a == 6)
         r = -10;
     end
     return;
+end
+
+% with move_prob a becomes something else
+if rand(1) < move_prob
+    other_as = find(1:4 ~= a);
+    a = other_as(randi(3));
 end
 
 %check move

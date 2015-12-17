@@ -1,10 +1,11 @@
 function [q_tables, perforamnce] = hfqi(node, exp_table, q_tables, a_tables, terminal_func, ...
-    max_iter, gamma, stop_threshold, verbose)
+    s_masks, max_iter, gamma, stop_threshold, verbose)
 
 Q = q_tables{node};
 A = a_tables{node};
+S_MASK = s_masks{node};
 perforamnce = 0;
-Qmin = -10;
+Qmin = -10.123;
 
 %% The format of E is: s a nr sp
 states = exp_table(:, 1:4);
@@ -25,7 +26,7 @@ if (verbose == 1)
     figure(node);
 end
 
-non_nan_mask = ones(num_sample, num_action);
+consistent_mask = ones(num_sample, num_action);
 %% Filter the experince table and locate relevant experience tuples
 for i = 1:num_sample
     for j = 1:num_action
@@ -33,34 +34,38 @@ for i = 1:num_sample
         cur_prim_a = prim_actions(i);
         best_a = h_greedy_policy(A(j), states(i, :), q_tables, a_tables);
         if (best_a ~= cur_prim_a)
-            non_nan_mask(i, j) = 0;
+            consistent_mask(i, j) = 0;
         end
     end
 end
-non_nan_mask = logical(non_nan_mask);
+consistent_mask = logical(consistent_mask);
 % calculate what percentage data is useful in learning this node's policy
 if (verbose)
-    disp(['node ' num2str(node)  ' relevant ratio ' num2str(sum(sum(non_nan_mask, 2)>0)/num_sample)]);
+    disp(['node ' num2str(node)  ' relevant ratio ' num2str(sum(sum(consistent_mask, 2)>0)/num_sample)]);
 end
+
+%% compute equivalent state mask at once
+all_state_mask = zeros(num_sample, 500); 
+all_eq_s_index = cell(500, 1);
+for i = 1:500
+    eq_s_index = equivalent_s_index(s_index_vector(i), S_MASK);
+    temp = ismember(states_idx, eq_s_index);
+    all_state_mask(:, i) = temp;
+    all_eq_s_index{i} = eq_s_index;
+end
+
 
 %% Begin value iteration
 for i = 1:max_iter
     Q = q_tables{node};
-    original_q = zeros(num_sample,num_action);
+    old_Q = Q;
     y = zeros(num_sample, num_action);
-    
-    % find the intial q values for all actions before Bellman backup
-    for j = 1:num_sample
-        for k = 1:num_action
-            original_q(j, k) = Q(states_idx(j), k);
-        end
-    end
     
     % if node contains subtask action
     for j = 1:num_sample
         for k = 1:num_action
             % Skip irrevelant samples
-            if (~non_nan_mask(j, k))
+            if (~consistent_mask(j, k))
                 continue;
             end
             if is_terminal(terminal_func, next_states(j, :), node)
@@ -77,26 +82,28 @@ for i = 1:max_iter
     
     %% for each state, action pair, compute the emperical mean of Q_node(s, a)
     for j = 1:500
+        eq_s_index = all_eq_s_index{j};
+        state_mask = all_state_mask(:, j);
         for k = 1:num_action
-            state_mask = states_idx==j;
-            target = y(state_mask & non_nan_mask(:, k), k);
+            target = y(state_mask & consistent_mask(:, k), k);
             if (~isempty(target))
-                Q(j, k) = mean(target);
+                Q(eq_s_index, k) = mean(target);
             else
-                Q(j, k) = Qmin;
+                Q(eq_s_index, k) = Qmin;
             end
         end
     end
+        
     q_tables{node} = Q;
     if (verbose == 1)
         plot(Q);
         drawnow
     end
     
-    %% compute bellman residual
-    resd = mean(abs(y(non_nan_mask) - original_q(non_nan_mask)));
+    %% compute Q table differences
+    resd = norm(old_Q - Q);
     if (verbose)
-        disp(['Iter '  num2str(i) ' node ' num2str(node) ' bellman residual is ' num2str(resd)]);
+        disp(['Iter '  num2str(i) ' node ' num2str(node) ' Q norm differences is ' num2str(resd)]);
     end
     if (resd < stop_threshold)
         break;

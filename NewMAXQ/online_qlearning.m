@@ -5,11 +5,11 @@
 clear;
 [q_tables, a_tables]  = init_tree(6, 1, 500, 6);
 a_tables{end} = 1:6;
-max_iter = 5000;
+max_iter = 200;
 max_epi_step = 1000;
 eval_interval = 10000;
 learning_rate = 0.2;
-init_temp = 50;
+init_temp = 100;
 temp_decay = 0.95;
 gamma = 0.99;
 step_cnt = 0;
@@ -28,7 +28,7 @@ for i = 1:max_iter
     while 1
         real_temp = init_temp * temp_decay ^ i;
         % update the q_function
-        [sp, r, terminal, q_tables] = q_learning(s, q_tables, a_tables, real_temp, gamma, learning_rate, false);
+        [sp, r, terminal, q_tables, a] = q_learning(s, q_tables, a_tables, real_temp, gamma, learning_rate, false);
         
         % save the samples
         if (col)
@@ -41,7 +41,7 @@ for i = 1:max_iter
         local_r = local_r + r;
         
         % performance evaluation
-        if (mod(step_cnt, eval_interval) == 0 || i == max_iter)
+        if (mod(step_cnt, eval_interval) == 0)
             avg_reward = q_eval(q_tables, a_tables, 100, max_epi_step, true, gamma);
             eval_avg_reward = [eval_avg_reward; avg_reward];
             eval_step = [eval_step; step_cnt];
@@ -54,7 +54,7 @@ for i = 1:max_iter
     end
 end
 plot(eval_step, eval_avg_reward);
-%save('./data/flatRanExpTable.mat', 'expTable');
+%save('./data/flatRanStochasExpTable.mat', 'exp_table');
 
 
 

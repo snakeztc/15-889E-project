@@ -1,4 +1,4 @@
-function [sp, r, terminal, q_tables] = q_learning(s, q_tables, a_tables, temperature, gamma, learning_rate, exe)
+function [sp, r, terminal, q_tables, a] = q_learning(s, q_tables, a_tables, temperature, gamma, learning_rate, exe)
     if (exe)
         a = greedy_policy(q_tables{end}(s_index_vector(s), :));
     else
